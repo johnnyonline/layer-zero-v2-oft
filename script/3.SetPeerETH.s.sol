@@ -8,15 +8,12 @@ import {ASFOFTAdapter} from "../src/OFTAdapter.sol";
 
 // (3) ETH
 
-// load:
-// set vars where @todo
-
 // deploy:
-// forge script script/3.SetPeersETH.s.sol:SetPeers --verify --slow --legacy --etherscan-api-key $KEY --rpc-url $ETH_RPC_URL --broadcast
+// forge script script/3.SetPeerETH.s.sol:SetPeers --verify --slow --legacy --etherscan-api-key $KEY --rpc-url $ETH_RPC_URL --broadcast
 
 contract SetPeers is Script {
-    address public constant OFT_BASE = address(0); // @todo
-    address public constant OFT_ADAPTER_ETH = address(0); // @todo
+    address public constant OFT_BASE = address(0x7543e3829eCDd61a5fD7c187ff88c4cf46E30F73);
+    address public constant OFT_ADAPTER_ETH = address(0x4FeB6c50a69D0Cb29F77E307249C767607b04408);
 
     uint32 public constant BASE_EID = 30184; // Base Mainnet
 

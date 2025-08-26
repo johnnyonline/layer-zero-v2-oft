@@ -85,12 +85,12 @@ contract DeployOFT is Script {
         address[] memory requiredDVNs = new address[](0);
         address[] memory optionalDVNs = new address[](3);
         optionalDVNs[0] = BASE_CANARY_DVN;
-        optionalDVNs[1] = BASE_DEUTCHE_DVN;
-        optionalDVNs[2] = BASE_LUGANODES_DVN;
+        optionalDVNs[1] = BASE_LUGANODES_DVN;
+        optionalDVNs[2] = BASE_DEUTCHE_DVN;
         UlnConfig memory uln = UlnConfig({
             confirmations: 15, // min block confirmations from source (A)
             requiredDVNCount: 0, // required DVNs for message acceptance
-            optionalDVNCount: type(uint8).max, // optional DVNs count
+            optionalDVNCount: 3, // optional DVNs count
             optionalDVNThreshold: 2, // optional DVN threshold
             requiredDVNs: requiredDVNs, // sorted required DVNs
             optionalDVNs: optionalDVNs // sorted optional DVNs

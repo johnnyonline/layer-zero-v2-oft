@@ -83,13 +83,13 @@ contract DeployOFTAdapter is Script {
     function _setSendConfig(address _oftAdapter) internal {
         address[] memory requiredDVNs = new address[](0);
         address[] memory optionalDVNs = new address[](3);
-        optionalDVNs[0] = ETH_CANARY_DVN;
-        optionalDVNs[1] = ETH_DEUTCHE_DVN;
-        optionalDVNs[2] = ETH_LUGANODES_DVN;
+        optionalDVNs[0] = ETH_DEUTCHE_DVN;
+        optionalDVNs[1] = ETH_LUGANODES_DVN;
+        optionalDVNs[2] = ETH_CANARY_DVN;
         UlnConfig memory uln = UlnConfig({
             confirmations: 15, // minimum block confirmations required on A before sending to B
             requiredDVNCount: 0, // number of DVNs required
-            optionalDVNCount: type(uint8).max, // optional DVNs count, uint8
+            optionalDVNCount: 3, // optional DVNs count, uint8
             optionalDVNThreshold: 2, // optional DVN threshold
             requiredDVNs: requiredDVNs, // sorted list of required DVN addresses
             optionalDVNs: optionalDVNs // sorted list of optional DVNs
