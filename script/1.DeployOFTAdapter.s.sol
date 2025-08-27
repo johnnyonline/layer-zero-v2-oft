@@ -34,6 +34,7 @@ contract DeployOFTAdapter is Script {
 
     uint16 SEND = 1;  // Message type for sendString function
     uint32 constant EXECUTOR_CONFIG_TYPE = 1;
+    uint32 constant RECEIVE_CONFIG_TYPE = 2;
     uint32 constant ULN_CONFIG_TYPE = 2;
     uint32 public constant BASE_EID = 30184; // Base Mainnet
     uint32 public constant ETH_EID = 30101; // Ethereum Mainnet
@@ -50,6 +51,9 @@ contract DeployOFTAdapter is Script {
 
         // Set send config
         _setSendConfig(_oftAdapter);
+
+        // Set receive config
+        _setReceiveConfig(_oftAdapter);
 
         // Set enforced options
         _setEnforcedOptions(_oftAdapter);
@@ -109,6 +113,29 @@ contract DeployOFTAdapter is Script {
 
         // Set config for messages sent from A to B
         ILayerZeroEndpointV2(ENDPOINT).setConfig(_oftAdapter, ETH_SENDULN302, params);
+    }
+
+    function _setReceiveConfig(address _oftAdapter) internal {
+        address[] memory requiredDVNs = new address[](0);
+        address[] memory optionalDVNs = new address[](3);
+        optionalDVNs[0] = ETH_DEUTCHE_DVN;
+        optionalDVNs[1] = ETH_LUGANODES_DVN;
+        optionalDVNs[2] = ETH_CANARY_DVN;
+        UlnConfig memory uln = UlnConfig({
+            confirmations: 15, // min block confirmations from source (A)
+            requiredDVNCount: 0, // required DVNs for message acceptance
+            optionalDVNCount: 3, // optional DVNs count
+            optionalDVNThreshold: 2, // optional DVN threshold
+            requiredDVNs: requiredDVNs, // sorted required DVNs
+            optionalDVNs: optionalDVNs // sorted optional DVNs
+        });
+
+        bytes memory encodedUln = abi.encode(uln);
+
+        SetConfigParam[] memory params = new SetConfigParam[](1);
+        params[0] = SetConfigParam(BASE_EID, RECEIVE_CONFIG_TYPE, encodedUln);
+
+        ILayerZeroEndpointV2(ENDPOINT).setConfig(_oftAdapter, ETH_RECEIVEULN302, params); // Set config for messages received on B from A
     }
 
     function _setEnforcedOptions(address _oftAdapter) internal {

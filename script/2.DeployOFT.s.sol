@@ -32,10 +32,12 @@ contract DeployOFT is Script {
     address public constant BASE_CANARY_DVN = address(0x554833698Ae0FB22ECC90B01222903fD62CA4B47); // Base Canary DVN
     address public constant BASE_DEUTCHE_DVN = address(0xc2A0C36f5939A14966705c7Cec813163FaEEa1F0); // Base Deutsche Telekom DVN
     address public constant BASE_LUGANODES_DVN = address(0xa0AF56164F02bDf9d75287ee77c568889F11d5f2); // Base Luganodes DVN
-    address public constant ETH_LZ_EXECUTOR = address(0x173272739Bd7Aa6e4e214714048a9fE699453059); // LZ Executor ethereum
+    address public constant BASE_LZ_EXECUTOR = address(0x2CCA08ae69E0C44b18a57Ab2A87644234dAebaE4); // LZ Executor Base
 
     uint16 SEND = 1;  // Message type for sendString function
     uint32 constant RECEIVE_CONFIG_TYPE = 2;
+    uint32 constant EXECUTOR_CONFIG_TYPE = 1;
+    uint32 constant ULN_CONFIG_TYPE = 2;
     uint32 public constant BASE_EID = 30184; // Base Mainnet
     uint32 public constant ETH_EID = 30101; // Ethereum Mainnet
     uint256 public constant GRACE_PERIOD = 0;
@@ -48,6 +50,9 @@ contract DeployOFT is Script {
 
         // Set libraries
         _setLibraries(_oft);
+
+        // Set send config
+        _setSendConfig(_oft);
 
         // Set receive config
         _setReceiveConfig(_oft);
@@ -79,6 +84,37 @@ contract DeployOFT is Script {
             BASE_RECEIVEULN302, // ReceiveUln302 address
             GRACE_PERIOD // Grace period for library switch
         );
+    }
+
+    function _setSendConfig(address _oft) internal {
+        address[] memory requiredDVNs = new address[](0);
+        address[] memory optionalDVNs = new address[](3);
+        optionalDVNs[0] = BASE_CANARY_DVN;
+        optionalDVNs[1] = BASE_LUGANODES_DVN;
+        optionalDVNs[2] = BASE_DEUTCHE_DVN;
+        UlnConfig memory uln = UlnConfig({
+            confirmations: 15, // minimum block confirmations required on A before sending to B
+            requiredDVNCount: 0, // number of DVNs required
+            optionalDVNCount: 3, // optional DVNs count, uint8
+            optionalDVNThreshold: 2, // optional DVN threshold
+            requiredDVNs: requiredDVNs, // sorted list of required DVN addresses
+            optionalDVNs: optionalDVNs // sorted list of optional DVNs
+        });
+
+        ExecutorConfig memory exec = ExecutorConfig({
+            maxMessageSize: 10000, // max bytes per cross-chain message
+            executor: BASE_LZ_EXECUTOR // address that pays destination execution fees on B
+        });
+
+        bytes memory encodedUln  = abi.encode(uln);
+        bytes memory encodedExec = abi.encode(exec);
+
+        SetConfigParam[] memory params = new SetConfigParam[](2);
+        params[0] = SetConfigParam(ETH_EID, EXECUTOR_CONFIG_TYPE, encodedExec);
+        params[1] = SetConfigParam(ETH_EID, ULN_CONFIG_TYPE, encodedUln);
+
+        // Set config for messages sent from A to B
+        ILayerZeroEndpointV2(ENDPOINT).setConfig(_oft, BASE_SENDULN302, params);
     }
 
     function _setReceiveConfig(address _oft) internal {
